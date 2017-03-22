@@ -1,0 +1,20 @@
+extend("base")
+
+export("body") {
+#loop (people, "people") {
+<div class="row">
+<div class="three columns">
+<h5><span>#(people.name)</span></h5>
+</div>
+<div class="six columns">
+<h5><span>#(people.favoriteLocation)</span></h5>
+</div>
+<div class="three columns">
+</div>
+</div>
+
+}
+
+
+
+}
