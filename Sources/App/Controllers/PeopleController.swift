@@ -10,47 +10,36 @@ import Foundation
 import Vapor
 import HTTP
 
-
-
 final class PeopleController: ResourceRepresentable {
     
-    func addRoutes(drop: Droplet) {
-        drop.group("people") { group in
-            group.post("create", handler: create)
-            group.get("all", handler: index)
-            group.get("show", People.self, handler: show)
-            group.patch("update", People.self, handler: update)
-            group.post("delete", People.self, handler: delete)
-        
-        
-        }
-    }
-    
-
-    
-    func create(request: Request) throws -> ResponseRepresentable {
-        var person = try request.person()
-        try person.save()
-        return person
-    }
-    
+    var peoples: [People] = []
     
     func index(request: Request) throws -> ResponseRepresentable {
-        return try JSON(node: People.all().makeNode())
+        //return try People.all().makeNode().converted(to: JSON.self)
+       return try JSON(node: peoples)
     }
     
+    func create(request: Request) throws -> ResponseRepresentable {
+//        var people = try request.post()
+//        try people.save()
+//        return people
+        
+        
+        //Guard statement to make sure we are validating the data correct
+        guard let name = request.data["name"]?.string else {
+            //Throw a Abort response, I like using the custom status to make sure the frontends have the correct message and response code
+            throw Abort.custom(status: Status.preconditionFailed, message: "Missing name")
+        }
+        
+      
+        let person = People(name: "Sean", favoritecity: "New York")
+        //Add it to our container object
+        peoples.append(person)
+        //Return the newly created json
+        return try person.converted(to: JSON.self)
+    }
     
     func show(request: Request, people: People) throws -> ResponseRepresentable {
-        return people
-        
-    }
-    
-    func update(request: Request, people: People) throws -> ResponseRepresentable {
-        let new = try request.person()
-        var people = people
-        people.name = new.name
-        people.favoritecity = new.favoritecity
-        try people.save()
         return people
     }
     
@@ -59,22 +48,50 @@ final class PeopleController: ResourceRepresentable {
         return JSON([:])
     }
     
+    func clear(request: Request) throws -> ResponseRepresentable {
+        try People.query().delete()
+        return JSON([])
+    }
+    
+    func update(request: Request, people: People) throws -> ResponseRepresentable {
+        let new = try request.post()
+        var people = people
+        peoples[0].name = "Sean"
+        peoples[0].favoritecity = "Brooklyn"
+        try people.save()
+        return people
+    }
+    
+    func replace(request: Request, people: People) throws -> ResponseRepresentable {
+        try people.delete()
+        guard let name = request.data["name"]?.string else {
+            //Throw a Abort response, I like using the custom status to make sure the frontends have the correct message and response code
+            throw Abort.custom(status: Status.preconditionFailed, message: "Missing name")
+        }
+        
+    
+        return try create(request: request)
+    }
+    
     func makeResource() -> Resource<People> {
         return Resource(
             index: index,
             store: create,
             show: show,
+            replace: replace,
             modify: update,
-            destroy: delete
+            destroy: delete,
+            clear: clear
         )
+    }
 }
-
-}
-
 
 extension Request {
-    func person() throws -> People {
+    func post() throws -> People {
         guard let json = json else { throw Abort.badRequest }
         return try People(node: json)
     }
 }
+
+
+
