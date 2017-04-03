@@ -15,24 +15,25 @@ final class PeopleController: ResourceRepresentable {
     var peoples: [People] = []
     
     func index(request: Request) throws -> ResponseRepresentable {
-        //return try People.all().makeNode().converted(to: JSON.self)
-       return try JSON(node: peoples)
+       return try JSON(node: People.all())
+       //return try JSON(node: peoples)
     }
     
     func create(request: Request) throws -> ResponseRepresentable {
-//        var people = try request.post()
-//        try people.save()
-//        return people
+//       var people = try request.people()
+//      try people.save()
+//       return people
         
         
         //Guard statement to make sure we are validating the data correct
-        guard let name = request.data["name"]?.string else {
-            //Throw a Abort response, I like using the custom status to make sure the frontends have the correct message and response code
-            throw Abort.custom(status: Status.preconditionFailed, message: "Missing name")
-        }
+//       guard let name = request.data["name"]?.string else {
+//            //Throw a Abort response, I like using the custom status to make sure the frontends have the correct message and response code
+//           throw Abort.custom(status: Status.preconditionFailed, message: "Missing name")
+//       }
         
       
-        let person = People(name: "Sean", favoritecity: "New York")
+       var person = People(name: "Sean", favoritecity: "New York")
+        try person.save()
         //Add it to our container object
         peoples.append(person)
         //Return the newly created json
@@ -44,7 +45,9 @@ final class PeopleController: ResourceRepresentable {
     }
     
     func delete(request: Request, people: People) throws -> ResponseRepresentable {
-        try people.delete()
+         //try people.delete()
+         //   peoples.removeAll()
+     try People.query().delete()
         return JSON([:])
     }
     
@@ -54,7 +57,7 @@ final class PeopleController: ResourceRepresentable {
     }
     
     func update(request: Request, people: People) throws -> ResponseRepresentable {
-        let new = try request.post()
+        let new = try request.people()
         var people = people
         peoples[0].name = "Sean"
         peoples[0].favoritecity = "Brooklyn"
@@ -87,7 +90,7 @@ final class PeopleController: ResourceRepresentable {
 }
 
 extension Request {
-    func post() throws -> People {
+    func people() throws -> People {
         guard let json = json else { throw Abort.badRequest }
         return try People(node: json)
     }

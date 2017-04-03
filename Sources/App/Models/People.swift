@@ -46,15 +46,15 @@ final class People: Model {
 extension People: Preparation {
 //
   static func prepare(_ database: Database) throws {
-       try database.create("people") { person in
-          person.id()
-            person.string("name")
-            person.string("favoritecity")
+       try database.create("peoples") { peoples in
+            peoples.id()
+            peoples.string("name")
+            peoples.string("favoritecity")
         }
     }
 
     static func revert(_ database: Database) throws {
-        try database.delete("people")
+        try database.delete("peoples")
 }
 
 
