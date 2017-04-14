@@ -1,1 +1,1 @@
-web: App --env=production --workdir="./"
+ App --env=production --workdir="./"
