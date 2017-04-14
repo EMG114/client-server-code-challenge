@@ -1,6 +1,7 @@
 # client-server-code-challenge
 
 A code challenge about creating a client and server for simple CRUD operations. Done in Swift and Vapor.
+Use Postman or RESTED to verify JSON response by inputting the request (GET, POST, etc) or curl in the command line 
 
 # Description
 
